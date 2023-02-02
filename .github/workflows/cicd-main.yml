@@ -1,0 +1,37 @@
+name: CI/CD Prod
+
+on:
+  push:
+    branches:
+      - master
+
+env:
+  VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout the code
+      uses: actions/checkout@v2
+      with:
+        ref: master
+        repository: rafirm29/itfest-frontend-8.0
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Fetch upstream changes
+      run: |
+        git remote add upstream https://github.com/arkavidia-hmif/itfest-frontend-8.0.git
+        git fetch upstream
+        git merge upstream/master
+
+    - name: Push changes to your fork
+      run: |
+        git push origin master
+
+    - name: Deploy to Vercel
+      uses: vercel/actions/cli@v1
+      with:
+        args: --prod
+        token: ${{ env.VERCEL_TOKEN }}
